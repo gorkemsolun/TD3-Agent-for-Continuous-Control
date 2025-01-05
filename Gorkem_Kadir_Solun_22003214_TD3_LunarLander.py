@@ -37,6 +37,7 @@ from collections import deque
 import gymnasium as gym
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -380,7 +381,7 @@ def run_td3_training(
     plt.show()
 
     env.close()
-    return episode_rewards
+    return episode_rewards, agent
 
 
 if __name__ == "__main__":
@@ -394,7 +395,7 @@ if __name__ == "__main__":
     all_rewards = []
 
     for s in seeds:
-        rewards = run_td3_training(
+        rewards, agent = run_td3_training(
             env_name="LunarLanderContinuous-v3",
             seed=s,
             max_steps=1000,  # Environment steps per episode
@@ -404,6 +405,10 @@ if __name__ == "__main__":
             runs_without_improvement=3,  # Terminate training if no improvement
         )
         all_rewards.append(rewards)
+
+        # Save the model weights
+        torch.save(agent.actor.state_dict(), f"td3_lunarlander_actor_seed{s}.pth")
+        torch.save(agent.critic.state_dict(), f"td3_lunarlander_critic_seed{s}.pth")
 
     # Determine the maximum length among all rewards lists
     max_length = max(len(rewards) for rewards in all_rewards)
@@ -429,6 +434,10 @@ if __name__ == "__main__":
 
     # Save the results
     np.save("td3_lunarlander_rewards.npy", all_rewards_np)
+
+    # Create a pandas DataFrame and save to CSV
+    df = pd.DataFrame(all_rewards_np.T, columns=[f"Seed {s}" for s in seeds])
+    df.to_csv("td3_lunarlander_rewards.csv", index=False)
 
     # Plot the learning curve
     plt.figure(figsize=(16, 10))
