@@ -278,7 +278,7 @@ def run_td3_training(
     start_timesteps=10000,  # Explore vs Exploit
     expl_noise=0.1,
     batch_size=100,
-    runs_without_improvement=3,
+    runs_without_improvement=10,
 ):
     """
     Trains a TD3 agent in the given Gym environment for a specified
@@ -402,7 +402,7 @@ if __name__ == "__main__":
             start_timesteps=10000,  # Use random policy for initial steps to fill buffer, explore more than exploit
             expl_noise=0.1,  # Noise for exploration
             batch_size=100,  # Batch size for training
-            runs_without_improvement=3,  # Terminate training if no improvement
+            runs_without_improvement=10,  # Terminate training if no improvement
         )
         all_rewards.append(rewards)
 
